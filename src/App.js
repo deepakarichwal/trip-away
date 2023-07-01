@@ -1,25 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import Logo from "./components/Logo";
+import Form from "./components/Form";
+import PackingList from "./components/PackingList";
+import Stats from "./components/Stats";
 
-function App() {
+export default function App() {
+  const [listItems, setListItems] = useState(
+    JSON.parse(localStorage.getItem("items")) || []
+  );
+  localStorage.setItem("items", JSON.stringify(listItems));
+
+  function handleAddItem(item) {
+    setListItems((items) => [...items, item]);
+  }
+
+  function handleRemoveItem(id) {
+    setListItems((items) => items.filter((item) => item.id !== id));
+  }
+
+  function handleToggleItem(id) {
+    setListItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : item
+      )
+    );
+  }
+
+  function handleClearAll() {
+    const confirm = window.confirm("Are you sure you want to delete the list?");
+    if (confirm) setListItems([]);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="trip">
+      <Logo />
+      <Form onAddItem={handleAddItem} />
+      <PackingList
+        listItems={listItems}
+        onRemoveItem={handleRemoveItem}
+        onToggleItem={handleToggleItem}
+        clearAll={handleClearAll}
+      />
+      <Stats listItems={listItems} />
     </div>
   );
 }
-
-export default App;
